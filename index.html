@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<script type="text/babel">
+
+    class RenderList extends React.Component {
+
+        constructor(props) {
+            super(props);
+        }
+
+
+
+        render() {
+            const ls = this.props.todolist;
+            const renderItems = ls.map((task) => <li key={task.counter} id={task.name.toString()} onClick={() => this.props.changeStatus(task)} className={task.class.toString()}>{task.name.toString()}</li>);
+            return <ul>{renderItems}</ul>;
+        }
+    }
+
+    class Todolist extends React.Component {
+
+        counter = 0;
+        constructor(props) {
+            super(props);
+            this.state = { tasks: [] };
+            this.newList = "";
+            // This binding is necessary to make `this` work in the callback
+            this.addNewTasks = this.addNewTasks.bind(this);
+            this.changeStatus = this.changeStatus.bind(this);
+        }
+
+        async addNewTasks(e) {
+            if (this.newList.value === "") {
+                alert("can't add empty task!")
+            } else {
+                this.setState((state) => {
+                    this.counter++;
+                    return { tasks: state.tasks.concat({ name: this.newList.value, counter: this.counter, class: "" }) };
+                });
+            }
+            e.preventDefault();
+
+
+        }
+
+        changeStatus(task) {
+            this.setState((state) => {
+                if(task.class == "done") {
+                    console.log("Clicked");
+                    return {tasks: state.tasks.filter(function(t) {return t.counter != task.counter})};
+                }
+                task.class = "done"; 
+                return state;
+            });
+        }
+
+
+
+        render() {
+            return (
+                <form onSubmit={(e) => { this.addNewTasks(e).then(() => { this.newList.value = "" }) }}>
+                    <RenderList todolist={this.state.tasks} changeStatus={this.changeStatus} />
+                    <input type="text" ref={(taskName) => { this.newList = taskName }}
+                        placeholder="add new list here"></input>
+                    <button type="submit">Add</button>
+
+                </form>
+            )
+        }
+    }
+    
+    ReactDOM.render(
+        <div>
+            <h1>To Do List</h1>
+            <p>click the task to change status to finished, click again to delete the task</p>
+            <Todolist />
+        </div>
+        ,
+        document.getElementById("root")
+    );
+
+</script>
+
+<style>
+    .container {
+        margin-left: 45%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        width: 20%;
+    }
+
+    .done {
+        text-decoration: line-through;
+    }
+</style>
+
+<body>
+    <div class="container" id="root"></div>
+</body>
+
+</html>
